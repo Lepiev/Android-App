@@ -48,10 +48,14 @@ fun Modifier.verticalScroll(
 - Modifier.border(width: Dp, brush: Brush, shape: Shape = RectangleShape)  
 - Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape)
 
-  ![image](https://github.com/user-attachments/assets/39d120d2-0234-499d-91cd-d8dd719ba5c4)
+3. Модификатор изменения цвета фона компонента
+   ТЕГИ: фон  
+   Модификатор `.background()`  
 
-
-
+3. Модификатор для изменения формы компонента  
+   ТЕГИ: закругление, форма, shape
+   Модикатор `Modifier.clip()`  
+   fun Modifier.clip(shape: Shape): Modifier
 
 
 
