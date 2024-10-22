@@ -1,6 +1,6 @@
 ###Модификаторы к компоненту:
 
-1) Модификатор для прокрутки содержимого контейнера: Modifier.horizontalScroll
+1. Модификатор для прокрутки содержимого контейнера: Modifier.horizontalScroll
 Как он прописан внутри:
 fun Modifier.horizontalScroll(
     state: ScrollState,
