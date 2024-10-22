@@ -7,7 +7,7 @@
 
 ТЕГИ: прокуртка, ползунок, крутить, листать
 1. Модификатор прокрутки содержимого компонента
-Для добавления прокрутки содержимого по горизонтали применяется модификатор Modifier.horizontalScroll
+Для добавления прокрутки содержимого по горизонтали применяется модификатор `Modifier.horizontalScroll`
 ```
 fun Modifier.horizontalScroll(
     state: ScrollState,
@@ -16,7 +16,7 @@ fun Modifier.horizontalScroll(
     reverseScrolling: Boolean = false
 ): Modifier
 ```
-Прокрутка по вертикали Modifier.verticalScroll:
+Прокрутка по вертикали `Modifier.verticalScroll`:
 ```
 fun Modifier.verticalScroll(
     state: ScrollState,
@@ -39,9 +39,9 @@ fun Modifier.verticalScroll(
 
 ТЕГИ: граница, выделить, бордер, border
 2. Модификатор создания границы для компонента
-Модификатор border позволяет определить границу вокруг компонента. Этот модификатор имеет следующие определения:
+Модификатор border (`Modifier.border()`) позволяет определить границу вокруг компонента. Этот модификатор имеет следующие определения:
 
-- Modifier.border(border: BorderStroke, shape: Shape = RectangleShape)
+- Modifier.border(border: BorderStroke, shape: Shape = RectangleShape)  
   принимает объект BorderStroke, в который через конструктор передается ширина линии в единицах dp и ее цвет в виде объекта Brush: BorderStroke(width: Dp, brush: Brush)
 - Modifier.border(width: Dp, brush: Brush, shape: Shape = RectangleShape)
 - Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape)
