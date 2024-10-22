@@ -37,14 +37,14 @@ fun Modifier.verticalScroll(
 
 
 
-ТЕГИ: граница, выделить, бордер, border
+ТЕГИ: граница, выделить, бордер, border  
 2. Модификатор создания границы для компонента
-Модификатор border (`Modifier.border()`) позволяет определить границу вокруг компонента. Этот модификатор имеет следующие определения:
+Модификатор border `Modifier.border()` позволяет определить границу вокруг компонента. Этот модификатор имеет следующие определения:
 
 - Modifier.border(border: BorderStroke, shape: Shape = RectangleShape)  
-  принимает объект BorderStroke, в который через конструктор передается ширина линии в единицах dp и ее цвет в виде объекта Brush: BorderStroke(width: Dp, brush: Brush)
-- Modifier.border(width: Dp, brush: Brush, shape: Shape = RectangleShape)
-- Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape)
+  принимает объект BorderStroke, в который через конструктор передается ширина линии в единицах dp и ее цвет в виде объекта Brush: BorderStroke(width: Dp, brush: Brush)  
+- Modifier.border(width: Dp, brush: Brush, shape: Shape = RectangleShape)  
+- Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape)  
 
 
 
