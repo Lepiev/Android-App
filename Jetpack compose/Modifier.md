@@ -53,7 +53,7 @@ fun Modifier.verticalScroll(
    Модификатор `.background()`  
 
 ### 4. Модификатор для изменения формы компонента  
-   ТЕГИ: закругление, форма, shape
+   ТЕГИ: закругление, форма, shape  
    Модикатор `Modifier.clip()`  
    fun Modifier.clip(shape: Shape): Modifier
 
