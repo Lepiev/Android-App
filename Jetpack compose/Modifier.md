@@ -55,7 +55,11 @@ fun Modifier.verticalScroll(
 ### 4. Модификатор для изменения формы компонента  
    ТЕГИ: закругление, форма, shape  
    Модикатор `Modifier.clip()`  
-   fun Modifier.clip(shape: Shape): Modifier
+   fun Modifier.clip(shape: Shape): Modifier  
+- RectangleShape: Прямоугольная форма (по умолчанию).  
+- RoundedCornerShape: Прямоугольник с закругленными углами.  
+- CircleShape: Круглая форма.  
+- CutCornerShape: Прямоугольник с "обрезанными" углами.
 
 
 
