@@ -118,7 +118,7 @@ fun Modifier.clickable(
 
 - Modifier.width(): устанавливает ширину
 
-- Modifier.fillMaxHeight(): растягивает компонент по всей длине контейнера
+- Modifier.fillMaxWidth(): растягивает компонент по всей ширине контейнера
 - Modifier.fillMaxHeight(): растягивает компонент по всей высоте контейнера
 
 - Modifier.fillMaxSize(): растягивает компонент по всей длине и ширине контейнера
