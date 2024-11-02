@@ -1,5 +1,6 @@
 # Стандартные контейнеры в Jetpack Compose  
 Основные контейнеры Box, Row, Column  
+Вместо Column и Row есть более эффективные LazyColumn и LazyRow, они отображают только то что видит пользователь  
 ### BOX  
 Представляет некоторую область экрана.  
 ```
@@ -96,3 +97,56 @@ inline fun Column(
 - Alignment.CenterHorizontally: выравнивание по центру
 
 
+### ROW  
+```
+@Composable
+inline fun Row(
+    modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    content: @Composable RowScope.() -> Unit
+): @Composable Unit
+```
+- modifier: объект Modifier, который позволяет настроить внешний вид и поведение компонента
+
+- horizontalArrangement: объект Arrangement.Horizontal, который устанавливает выравнивание компонента по горизонтали. По умолчанию имеет значение Arrangement.Start (расположение в вначале: слева для левосторонних языков и справа для правосторонних языков)
+
+- verticalAlignment: объект Alignment.Vertical, который устанавливает выравнивание компонента по вертикали. По умолчанию имеет значение Alignment.Top (расположение вверху)
+
+- content: объект интерфейса RowScope, который представляет вложенное содержимое
+
+
+
+### LazyColumn  
+LazyColumn создает список с вертикальной прокруткой, а LazyRow создает список с горизонтальной прокруткой и имеет следующие параметры:
+```
+@Composable
+fun LazyColumn(
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical = if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    content: LazyListScope.() -> Unit
+): Unit
+```
+- modifier: применяемые к контейнеру модификаторы
+
+- state: объект состояния LazyListState, применяемый для управления состоянием контейнера
+
+- contentPadding: отступы вокруг содержимого
+
+- reverseLayout: при значении true располагает элементы в обратном порядке
+
+- verticalArrangement: настройки расположения элементов по вертикали
+
+- horizontalAlignment: выравнивание элементов по горизонтали
+
+- flingBehavior: описывает поведение при таком типе прокрутки, когда пользователь быстро перетаскивает что-то и поднимает палец. Представляет объект FlingBehavior
+
+- userScrollEnabled: указывает, доступна ли прокрутка жестами либо через специальные инструменты управления доступом
+
+- content: устанавливает содержимое контейнера с помощью функции типа LazyListScope.() -> Unit.
