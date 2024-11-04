@@ -1,0 +1,235 @@
+package com.example.test14
+
+import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import android.icu.util.Calendar
+
+
+
+import androidx.compose.material3.Scaffold
+
+
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
+import android.os.Bundle
+import androidx.compose.material3.Scaffold
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.collection.mutableIntSetOf
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MovableContent
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.test14.ui.theme.Test14Theme
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.Alignment
+import org.w3c.dom.Text
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.foundation.Image
+import androidx.compose.material3.Icon
+import androidx.compose.material3.TextField
+import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
+
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            Test14Theme(darkTheme = false) {
+                val navController = rememberNavController()
+                val taskViewModel: TaskViewModel = viewModel()
+                NavHost(navController = navController, startDestination = "main") {
+                    composable("main") {
+                        MainScreen(navController, taskViewModel)
+                    }
+                    composable("task_detail/{taskId}") { backStackEntry ->
+                        val taskId = backStackEntry.arguments?.getString("taskId")
+                        TaskDetailScreen(taskId, navController, taskViewModel)
+                    }
+                    composable("task_creation") {
+                        TaskCreationScreen(navController, taskViewModel)
+                    }
+                }
+            }
+        }
+    }
+}
+// сама таска
+data class Task(val id: String, val title: String, val description: String)
+
+//используется для хранения состояния задач, чтобы оно сохранялось при изменениях (поворот экрана)
+
+class TaskViewModel : ViewModel() {
+    private val _tasks = mutableStateListOf<Task>()
+    val tasks: List<Task> get() = _tasks
+
+    fun addTask(task: Task) {
+        _tasks.add(task)
+    }
+
+    fun getTaskById(id: String): Task? {
+        return _tasks.find { it.id == id }
+    }
+}
+
+
+@Composable
+fun MainScreen(navController: NavController, taskViewModel: TaskViewModel) {
+    val tasks = taskViewModel.tasks
+
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate("task_creation")
+                },
+                containerColor = Color.Red,
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Task")
+            }
+        },
+        bottomBar = {
+            // Ваш код для нижней панели, если требуется
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            LazyColumn {
+                items(tasks) { task ->
+                    TaskItem(task = task, onClick = {
+                        navController.navigate("task_detail/${task.id}")
+                    })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskItem(task: Task, onClick: () -> Unit) {
+    Text(
+        text = task.title,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        fontSize = 20.sp
+    )
+}
+
+@Composable
+fun TaskDetailScreen(taskId: String?, navController: NavController, taskViewModel: TaskViewModel) {
+    val task = taskViewModel.getTaskById(taskId ?: "")
+    if (task != null) {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Text(text = task.title, fontSize = 24.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = task.description, fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { navController.popBackStack() }) {
+                Text(text = "Назад")
+            }
+        }
+    } else {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Text(text = "Задача не найдена", fontSize = 24.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { navController.popBackStack() }) {
+                Text(text = "Назад")
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskCreationScreen(navController: NavController, taskViewModel: TaskViewModel) {
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(text = "Создать новую задачу", fontSize = 24.sp)
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = title,
+            onValueChange = { title = it },
+            label = { Text("Заголовок") }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Описание") }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+            if (title.isNotBlank()) {
+                val newTask = Task(
+                    id = System.currentTimeMillis().toString(),
+                    title = title,
+                    description = description
+                )
+                taskViewModel.addTask(newTask)
+                navController.navigate("task_detail/${newTask.id}") {
+                    popUpTo("main") { inclusive = false }
+                }
+            } else {
+                // Можно показать сообщение об ошибке
+            }
+        }) {
+            Text(text = "Сохранить")
+        }
+    }
+}
+
+
+@Preview(showSystemUi = true)
+@Composable
+fun HelloPreview() {
+    val navController = rememberNavController()
+    val taskViewModel = TaskViewModel()
+    MainScreen(navController, taskViewModel)
+}
+
