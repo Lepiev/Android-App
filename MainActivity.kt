@@ -11,15 +11,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import android.icu.util.Calendar
 import android.os.Bundle
 import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.collection.mutableIntSetOf
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -57,7 +60,11 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.foundation.Image
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextField
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
 
 
 class MainActivity : ComponentActivity() {
@@ -66,34 +73,80 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Test14Theme (darkTheme = false){
-                MainScreen()
+
+                val navController = rememberNavController()
+                val taskViewModel: TaskViewModel = viewModel()
+
+                NavHost(navController = navController, startDestination = "main",
+                    enterTransition = { EnterTransition.None},
+                    exitTransition = { ExitTransition.None}
+
+                ) {
+
+                    composable("main"){
+                        MainScreen(navController, taskViewModel)
+                    }
+                    composable("taskEditor") {
+                        EditorScreen(navController, taskViewModel)
+                    }
+                    composable("task_detail/{taskId}") { backStackEntry ->
+                        val taskId = backStackEntry.arguments?.getString("taskId")
+                        TaskDetailScreen(taskId, navController, taskViewModel)
+                    }
+
+                }
             }
 
         }
     }
 }
 
-data class Tasks(var message:String, var YorN:Boolean = false)
+data class Task(val title: String, val message:String, val id: String)
+
+class TaskViewModel : ViewModel() {
+    private val _tasks = mutableStateListOf<Task>()
+    val tasks: List<Task> get() = _tasks
+
+    fun addTask(task: Task) {
+        _tasks.add(task)
+    }
+
+    fun getTaskById(id: String): Task? {
+        return _tasks.find { it.id == id }
+    }
+}
 
 
 @Composable
-fun MainScreen(){
+fun MainScreen(navController: NavController, taskViewModel: TaskViewModel){
 
-    var listOftasks = remember { mutableListOf<String>() }
 
     Scaffold (
         //нижняя панель
         bottomBar = {
-            Row (modifier = Modifier.fillMaxWidth().height(60.dp)){
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(5.dp)) {  }
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(5.dp)) {  }
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(5.dp)) {  }
+            Row (modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)){
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(5.dp)) {  }
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(5.dp)) {  }
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(5.dp)) {  }
             }
         },
 
         //кнопка
         floatingActionButton = {
-            Button(onClick = {}, modifier = Modifier.size(80.dp),
+            Button(onClick = {
+                navController.navigate("taskEditor")
+            }, modifier = Modifier.size(80.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red,
                     contentColor = Color.White
@@ -127,30 +180,201 @@ fun MainScreen(){
 
     ){
         Box(modifier = Modifier.padding(it)){
-
-
-
+            Column {
+                for (tmpTask in taskViewModel.tasks) {
+                    Text (text = tmpTask.title, fontSize = 28.sp,
+                        modifier = Modifier
+                            .clickable (onClick = {
+                                navController.navigate("task_detail/${tmpTask.id}") {
+                                    popUpTo("main") { inclusive = false }
+                                }
+                            }))
+                }
+            }
         }
     }
 
 }
 
 
+// экран создания задачи
 @Composable
-fun AddNewTasks(takenText:String = "Без ничего"){
-    Box(
-        modifier = Modifier.padding(22.dp)
-    ) {
-        Text(
-            text = takenText,
-            fontSize = 28.sp
-        )
+fun EditorScreen(navController: NavController, taskViewModel: TaskViewModel){
+    Scaffold (
+        //нижняя панель
+        bottomBar = {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)) {
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(5.dp)) { }
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(5.dp)) { }
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(5.dp)) { }
+            }
+        },
+
+    ){
+        Box(modifier = Modifier.fillMaxSize()) {
+            var title by remember { mutableStateOf("") }
+            var savetext by remember { mutableStateOf("") }
+            Column(modifier = Modifier.padding(it)) {
+
+                TextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Заголовок") }
+                )
+                TextField(
+                    value = savetext,
+                    onValueChange = { savetext = it }
+                )
+
+            }
+
+            Button(
+                onClick = {
+                    if (title.isNotBlank()) {
+                        val newTask = Task(
+                            title = title,
+                            message = savetext,
+                            id = System.currentTimeMillis().toString()
+                        )
+                        taskViewModel.addTask(newTask)
+                        navController.navigate("main")
+                    }
+
+                },
+                shape = CircleShape,
+                contentPadding = PaddingValues(0.dp), //убирает оганичение области
+                modifier = Modifier.align(Alignment.BottomEnd).padding(vertical = 70.dp).padding(horizontal = 20.dp).size(80.dp)
+
+            ) {
+                // Контейнер для стрелки
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Box(modifier = Modifier
+                        .align(Alignment.Center)
+
+                        .size(50.dp, 10.dp)
+                        .background(Color.White)
+
+                    )
+                    Box(modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .offset(10.dp, 28.dp)
+                        .rotate(-45f)
+                        .size(30.dp, 10.dp)
+                        .background(Color.White)
+
+                    )
+                    Box(modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .offset((10.dp), -(28).dp)
+                        .rotate(45f)
+                        .size(30.dp, 10.dp)
+                        .background(Color.White)
+
+                    )
+                }
+            }
+        }
     }
 }
+
+// экран при открытии инфы о задаче
+@Composable
+fun TaskDetailScreen(taskId: String?, navController: NavController, taskViewModel: TaskViewModel) {
+    val task = taskViewModel.getTaskById(taskId ?: "")
+    if (task != null) {
+
+        Scaffold (
+            //нижняя панель
+            bottomBar = {
+                Row (modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)){
+                    Box(modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(5.dp)) {  }
+                    Box(modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(5.dp)) {  }
+                    Box(modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(5.dp)) {  }
+                }
+            },
+
+            floatingActionButton = {
+                Button(onClick = {
+                    navController.popBackStack()
+                }, modifier = Modifier.size(80.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red,
+                        contentColor = Color.White
+                    ),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    //что-то нарисовать
+                    Box(contentAlignment = Alignment.Center){
+
+                    }
+
+                }
+            }
+        ){
+            Column (modifier = Modifier.padding(it)){
+                    Text(text = task.title, fontSize = 30.sp, modifier = Modifier
+                        .align(Alignment.CenterHorizontally), textAlign = TextAlign.Center)
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(text = task.message, fontSize = 24.sp)
+            }
+        }
+    }
+
+
+    else {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Text(text = "Задача не найдена", fontSize = 24.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { navController.popBackStack() }) {
+                Text(text = "Назад")
+            }
+        }
+    }
+}
+
 
 @Preview(showSystemUi = true)
 @Composable
 fun HelloPreview() {
-    MainScreen()
-}
+        // Создаём NavController для превью
+        val navController = rememberNavController()
 
+        // Создаём экземпляр TaskViewModel и добавляем пример задачи
+        val taskViewModel = TaskViewModel().apply {
+            addTask(Task(title = "Пример задачи очеь большой задачи", message = "Это пример описания задачи.", id = "1"))
+        }
+
+        // Отображаем TaskDetailScreen с примерными данными
+        TaskDetailScreen(
+            taskId = "1", // Идентификатор существующей задачи
+            navController = navController,
+            taskViewModel = taskViewModel
+        )
+
+}
